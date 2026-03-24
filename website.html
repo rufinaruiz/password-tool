@@ -189,18 +189,58 @@
       background:var(--bad2);
     }
 
+    .sectionTitle{
+      margin:24px 0 10px;
+      color:rgba(242,246,252,0.88);
+      font-size:14px;
+      letter-spacing:0.2px;
+      font-weight:650;
+    }
+
+    .summary{
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      gap:14px;
+      margin-top:14px;
+    }
+
+    @media (max-width:900px){
+      .summary{grid-template-columns:1fr;}
+    }
+
+    .kv{
+      display:grid;
+      gap:10px;
+    }
+
+    .kvItem{
+      padding:13px;
+      border-radius:15px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
+    }
+
+    .kvItem b{
+      display:block;
+      margin-bottom:6px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .kvItem span{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+    }
+
     .grid{
       display:grid;
-      grid-template-columns:repeat(4, 1fr);
+      grid-template-columns:repeat(3, 1fr);
       gap:14px;
       margin-top:14px;
     }
 
     @media (max-width:1000px){
-      .grid{grid-template-columns:repeat(2, 1fr);}
-    }
-
-    @media (max-width:560px){
       .grid{grid-template-columns:1fr;}
     }
 
@@ -259,14 +299,6 @@
     .risk-high .dot{ background:rgba(239,154,141,0.80); }
     .risk-vhigh .dot{ background:rgba(215,132,184,0.82); }
 
-    .sectionTitle{
-      margin:24px 0 10px;
-      color:rgba(242,246,252,0.88);
-      font-size:14px;
-      letter-spacing:0.2px;
-      font-weight:650;
-    }
-
     .bars{
       display:grid;
       gap:10px;
@@ -318,42 +350,6 @@
       .barVal{text-align:left;}
     }
 
-    .summary{
-      display:grid;
-      grid-template-columns:1.1fr 0.9fr;
-      gap:14px;
-      margin-top:14px;
-    }
-
-    @media (max-width:900px){
-      .summary{grid-template-columns:1fr;}
-    }
-
-    .kv{
-      display:grid;
-      gap:10px;
-    }
-
-    .kvItem{
-      padding:13px;
-      border-radius:15px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,0.04);
-    }
-
-    .kvItem b{
-      display:block;
-      margin-bottom:6px;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .kvItem span{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.65;
-    }
-
     footer{
       margin-top:15px;
       color:var(--muted);
@@ -377,7 +373,7 @@
     <section class="card pad">
       <h1>Estimate time-to-guess under different attack models</h1>
       <p class="sub">
-        This demo estimates guessing time for brute force, dictionary, pattern-based, and hybrid attacks.
+        This demo estimates guessing time for brute force, dictionary, and hybrid attacks.
         Everything runs locally in your browser using simplified assumptions.
       </p>
 
@@ -440,7 +436,7 @@
     <section class="grid">
       <div class="card pad model" id="cardBrute">
         <h3>Brute Force</h3>
-        <p class="meta">Tries all combinations for a given character set.</p>
+        <p class="meta">Tries all possible combinations from the detected character set.</p>
         <div class="big" id="tBrute">—</div>
         <div class="minirow"><span>Guess rate</span><span id="rBrute">—</span></div>
         <div class="minirow"><span>Assumption</span><span>Random password</span></div>
@@ -449,28 +445,19 @@
 
       <div class="card pad model" id="cardDict">
         <h3>Dictionary</h3>
-        <p class="meta">Common words + basic variations.</p>
+        <p class="meta">Checks common words and simple variations like years or punctuation.</p>
         <div class="big" id="tDict">—</div>
         <div class="minirow"><span>Guess rate</span><span id="rDict">—</span></div>
         <div class="minirow"><span>Assumption</span><span>Common word base</span></div>
         <div style="margin-top:10px" class="pill" id="riskDict"><span class="dot"></span><span>Risk: —</span></div>
       </div>
 
-      <div class="card pad model" id="cardPattern">
-        <h3>Pattern-Based</h3>
-        <p class="meta">Targets predictable structures like years, sequences, words, and reused formats.</p>
-        <div class="big" id="tPattern">—</div>
-        <div class="minirow"><span>Guess rate</span><span id="rPattern">—</span></div>
-        <div class="minirow"><span>Assumption</span><span>Human-chosen patterns</span></div>
-        <div style="margin-top:10px" class="pill" id="riskPattern"><span class="dot"></span><span>Risk: —</span></div>
-      </div>
-
       <div class="card pad model" id="cardHybrid">
         <h3>Hybrid</h3>
-        <p class="meta">Wordlists + substitutions + suffixes + likely user variations.</p>
+        <p class="meta">Combines wordlists, substitutions, added symbols, and number endings.</p>
         <div class="big" id="tHybrid">—</div>
         <div class="minirow"><span>Guess rate</span><span id="rHybrid">—</span></div>
-        <div class="minirow"><span>Assumption</span><span>Leetspeak + suffix</span></div>
+        <div class="minirow"><span>Assumption</span><span>Leetspeak + suffixes</span></div>
         <div style="margin-top:10px" class="pill" id="riskHybrid"><span class="dot"></span><span>Risk: —</span></div>
       </div>
     </section>
@@ -487,11 +474,6 @@
           <div class="barLabel">Dictionary</div>
           <div class="bar"><div class="fill" id="bDict"></div></div>
           <div class="barVal" id="bvDict">—</div>
-        </div>
-        <div class="barRow">
-          <div class="barLabel">Pattern-based</div>
-          <div class="bar"><div class="fill" id="bPattern"></div></div>
-          <div class="barVal" id="bvPattern">—</div>
         </div>
         <div class="barRow">
           <div class="barLabel">Hybrid</div>
@@ -612,26 +594,10 @@
         MONTHS.some(m => lower.includes(m)) ||
         SEASONS.some(s => lower.includes(s));
 
-      let patternScore = 0;
-
-      if (containsCommonWord) patternScore += 3;
-      if (/(19[7-9][0-9]|20[0-4][0-9])/.test(pw)) patternScore += 2;
-      if (/(.)\1\1/.test(pw)) patternScore += 2;
-      if (/[!?.]$/.test(pw)) patternScore += 1;
-      if (/^[A-Z][a-z]+/.test(pw)) patternScore += 1;
-      if (/(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321)/.test(pw)) patternScore += 3;
-      if (/^[A-Za-z]+[0-9]+$/.test(pw) || /^[A-Za-z]+[^A-Za-z0-9]?[0-9]+$/.test(pw)) patternScore += 2;
-      if (/^[A-Z][a-z]+[0-9!@#$%^&*._-]+$/.test(pw)) patternScore += 2;
-      if (len <= 8) patternScore += 1;
-      if (varietyCount <= 2) patternScore += 1;
-
-      const randomLikeBonus =
-        (!containsCommonWord ? 1 : 0) +
-        (varietyCount >= 3 ? 1 : 0) +
-        (len >= 10 ? 1 : 0) +
-        (!/^[A-Za-z]+[0-9]+$/.test(pw) ? 1 : 0);
-
-      patternScore = Math.max(0, patternScore - Math.min(randomLikeBonus, 3));
+      const hasYear = /(19[7-9][0-9]|20[0-4][0-9])/.test(pw);
+      const hasSequence = /(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321)/.test(pw);
+      const repeated = /(.)\1\1/.test(pw);
+      const simpleWordNumber = /^[A-Za-z]+[0-9]+$/.test(pw) || /^[A-Za-z]+[^A-Za-z0-9]?[0-9]+$/.test(pw);
 
       const bruteGuesses = Math.pow(space, len);
       const bruteRate = 1e10;
@@ -644,37 +610,38 @@
         (len >= 12 ? 80 : len >= 9 ? 20 : 5);
 
       const dictBase = 50_000_000;
-      const dictGuesses = containsCommonWord
+      let dictGuesses = containsCommonWord
         ? dictBase * variantMultiplier
         : dictBase * variantMultiplier * 250;
+
+      if (hasYear) dictGuesses /= 3;
+      if (simpleWordNumber) dictGuesses /= 2;
+      if (hasSequence) dictGuesses /= 3;
+      if (repeated) dictGuesses /= 2;
+
+      dictGuesses = Math.max(dictGuesses, 2_000_000);
+
       const dictRate = 1e9;
       const dictSec = (dictGuesses / dictRate) / 2;
 
-      let patternGuesses;
-      if (patternScore >= 7) patternGuesses = 5_000_000;
-      else if (patternScore >= 5) patternGuesses = 150_000_000;
-      else if (patternScore >= 3) patternGuesses = 8_000_000_000;
-      else if (patternScore >= 1) patternGuesses = 120_000_000_000;
-      else patternGuesses = 900_000_000_000;
+      let hybridGuesses = dictGuesses * 1200;
 
-      if (len >= 12) patternGuesses *= 4;
-      if (varietyCount >= 3) patternGuesses *= 4;
-      if (hasSymbol) patternGuesses *= 2;
-      if (!containsCommonWord && varietyCount === 4 && len >= 10) patternGuesses *= 6;
+      if (!containsCommonWord && varietyCount >= 3) hybridGuesses *= 4;
+      if (len >= 12) hybridGuesses *= 3;
+      if (len >= 16) hybridGuesses *= 4;
+      if (hasSymbol) hybridGuesses *= 1.5;
+      if (simpleWordNumber) hybridGuesses /= 2;
+      if (hasYear) hybridGuesses /= 2;
+      if (hasSequence) hybridGuesses /= 2;
 
-      const patternRate = 2e8;
-      const patternSec = (patternGuesses / patternRate) / 2;
+      hybridGuesses = Math.min(hybridGuesses, bruteGuesses);
 
-      let hybridGuesses = Math.min(bruteGuesses, dictGuesses * 1200);
-      if (!containsCommonWord && varietyCount >= 3) hybridGuesses *= 3;
-      if (len >= 14) hybridGuesses *= 4;
       const hybridRate = 1.5e9;
       const hybridSec = (hybridGuesses / hybridRate) / 2;
 
       const models = [
         { name:"Brute force", sec: bruteSec },
         { name:"Dictionary", sec: dictSec },
-        { name:"Pattern-based", sec: patternSec },
         { name:"Hybrid", sec: hybridSec }
       ].sort((a, b) => a.sec - b.sec);
 
@@ -682,14 +649,14 @@
       const worst = models[models.length - 1];
 
       let suggestion = "Use a longer passphrase with random words or a password manager.";
-      if (containsCommonWord || patternScore >= 5){
-        suggestion = "Avoid common words, years, and predictable structures. Make the password less human-patterned.";
+      if (containsCommonWord){
+        suggestion = "Avoid common words and familiar terms. Those make dictionary-style attacks much faster.";
       }
       if (len < 12){
-        suggestion = "Increase length to around 12–16+ characters. Length usually helps the most.";
+        suggestion = "Increase length to around 12–16+ characters. Length usually improves resistance the most.";
       }
-      if (len >= 12 && varietyCount >= 3 && !containsCommonWord && patternScore <= 2){
-        suggestion = "This is better than average. Keep it unique and avoid reusing it anywhere else.";
+      if (len >= 12 && varietyCount >= 3 && !containsCommonWord){
+        suggestion = "This is better than average. Keep it unique and avoid reusing it on other accounts.";
       }
 
       return {
@@ -698,13 +665,15 @@
         entropyBits,
         bruteSec,
         dictSec,
-        patternSec,
         hybridSec,
-        rates: { bruteRate, dictRate, patternRate, hybridRate },
+        rates: { bruteRate, dictRate, hybridRate },
         weakest,
         worst,
         containsCommonWord,
-        patternScore,
+        hasYear,
+        hasSequence,
+        repeated,
+        simpleWordNumber,
         suggestion
       };
     }
@@ -739,23 +708,24 @@
         recs.push("Avoid common words, months, seasons, or popular password fragments.");
       }
 
-      if (analysis.patternScore >= 5){
-        score -= 2;
-        reasons.push("The structure looks predictable.");
-        recs.push("Avoid years, sequences, repeated characters, or word-plus-number patterns.");
-      } else if (analysis.patternScore >= 3){
+      if (analysis.hasYear){
         score -= 1;
-        recs.push("Make the structure less predictable.");
+        recs.push("Avoid adding obvious years like 2024 or 1999.");
       }
 
-      if (/(.)\1\1/.test(pw)){
+      if (analysis.hasSequence){
+        score -= 2;
+        recs.push("Avoid number sequences like 1234.");
+      }
+
+      if (analysis.repeated){
         score -= 1;
         recs.push("Avoid repeated characters like aaa or 111.");
       }
 
-      if (/(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321)/.test(pw)){
-        score -= 2;
-        recs.push("Avoid number sequences.");
+      if (analysis.simpleWordNumber){
+        score -= 1;
+        recs.push("Avoid simple word-plus-number formats.");
       }
 
       if (pw.length < 12){
@@ -788,7 +758,7 @@
         label = "Strong";
         percent = 76;
         color = "rgba(156,184,255,0.84)";
-        reasonText = "Resists simple attack patterns more effectively.";
+        reasonText = "Resists simple attacks more effectively.";
       }
 
       if (score >= 9){
@@ -821,19 +791,15 @@
       $("entropyText").textContent = "Entropy estimate: —";
       $("tBrute").textContent = "—";
       $("tDict").textContent = "—";
-      $("tPattern").textContent = "—";
       $("tHybrid").textContent = "—";
       $("rBrute").textContent = "—";
       $("rDict").textContent = "—";
-      $("rPattern").textContent = "—";
       $("rHybrid").textContent = "—";
       $("bvBrute").textContent = "—";
       $("bvDict").textContent = "—";
-      $("bvPattern").textContent = "—";
       $("bvHybrid").textContent = "—";
       $("bBrute").style.width = "0%";
       $("bDict").style.width = "0%";
-      $("bPattern").style.width = "0%";
       $("bHybrid").style.width = "0%";
       $("worstCase").textContent = "—";
       $("weakness").textContent = "—";
@@ -883,39 +849,25 @@
       $("tBrute").textContent = formatSeconds(a.bruteSec);
       $("rBrute").textContent = `${(a.rates.bruteRate / 1e9).toFixed(1)}B / sec`;
       setRisk($("riskBrute"), a.bruteSec);
-      $("cardBrute").classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
-      $("cardBrute").classList.add(riskClassFromSeconds(a.bruteSec));
 
       $("tDict").textContent = formatSeconds(a.dictSec);
       $("rDict").textContent = `${(a.rates.dictRate / 1e9).toFixed(1)}B / sec`;
       setRisk($("riskDict"), a.dictSec);
-      $("cardDict").classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
-      $("cardDict").classList.add(riskClassFromSeconds(a.dictSec));
-
-      $("tPattern").textContent = formatSeconds(a.patternSec);
-      $("rPattern").textContent = `${(a.rates.patternRate / 1e9).toFixed(1)}M / sec`;
-      setRisk($("riskPattern"), a.patternSec);
-      $("cardPattern").classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
-      $("cardPattern").classList.add(riskClassFromSeconds(a.patternSec));
 
       $("tHybrid").textContent = formatSeconds(a.hybridSec);
       $("rHybrid").textContent = `${(a.rates.hybridRate / 1e9).toFixed(1)}B / sec`;
       setRisk($("riskHybrid"), a.hybridSec);
-      $("cardHybrid").classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
-      $("cardHybrid").classList.add(riskClassFromSeconds(a.hybridSec));
 
-      const secs = [a.bruteSec, a.dictSec, a.patternSec, a.hybridSec].map(s => isFinite(s) ? s : 0);
+      const secs = [a.bruteSec, a.dictSec, a.hybridSec].map(s => isFinite(s) ? s : 0);
       const max = Math.max(...secs, 1);
       const pct = (s) => Math.max(5, Math.min(100, (s / max) * 100));
 
       $("bBrute").style.width = pct(a.bruteSec) + "%";
       $("bDict").style.width = pct(a.dictSec) + "%";
-      $("bPattern").style.width = pct(a.patternSec) + "%";
       $("bHybrid").style.width = pct(a.hybridSec) + "%";
 
       $("bvBrute").textContent = formatSeconds(a.bruteSec);
       $("bvDict").textContent = formatSeconds(a.dictSec);
-      $("bvPattern").textContent = formatSeconds(a.patternSec);
       $("bvHybrid").textContent = formatSeconds(a.hybridSec);
 
       $("worstCase").textContent = `${a.worst.name}: ${formatSeconds(a.worst.sec)} (under assumptions)`;
