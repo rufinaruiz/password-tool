@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Password Security Simulator</title>
+
+  <style>
+    :root{
+      --bg:#141821;
+      --bg2:#1b2130;
+      --panel:rgba(28,34,48,0.82);
+      --panel2:rgba(34,42,58,0.90);
+      --border:rgba(255,255,255,0.08);
+      --text:rgba(244,247,252,0.95);
+      --muted:rgba(212,220,235,0.70);
+      --shadow:0 18px 44px rgba(0,0,0,0.28);
+      --radius:20px;
+      --max:1120px;
+
+      --accent:#9cb8ff;
+      --accent2:#bfa8ff;
+      --good:#78d7a7;
+      --warn:#f0c27b;
+      --bad:#ef9a8d;
+      --bad2:#d784b8;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: Inter, "Avenir Next", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 10% 0%, rgba(128,143,255,0.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(179,143,255,0.12), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      display:flex;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .wrap{
+      max-width:var(--max);
+      width:100%;
+    }
+
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:700;
+      letter-spacing:0.2px;
+    }
+
+    .logo{
+      width:38px;
+      height:38px;
+      border-radius:12px;
+      background:linear-gradient(135deg, rgba(156,184,255,0.95), rgba(191,168,255,0.82));
+      box-shadow:0 10px 30px rgba(138,153,255,0.20);
+    }
+
+    .tag{
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+    }
+
+    .pad{padding:20px;}
+
+    h1{
+      margin:0;
+      font-size:clamp(22px, 2.8vw, 31px);
+      line-height:1.1;
+      font-weight:750;
+      letter-spacing:-0.02em;
+    }
+
+    .sub{
+      margin:8px 0 0;
+      color:var(--muted);
+      line-height:1.65;
+      font-size:14px;
+      max-width:760px;
+    }
+
+    .inputRow{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-top:16px;
+    }
+
+    label{
+      display:block;
+      font-size:13px;
+      color:var(--muted);
+      margin:0 0 8px;
+    }
+
+    input{
+      width:100%;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.06);
+      color:var(--text);
+      outline:none;
+      font-size:15px;
+      transition:border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input::placeholder{
+      color:rgba(220,228,240,0.38);
+    }
+
+    input:focus{
+      border-color:rgba(156,184,255,0.55);
+      background:rgba(255,255,255,0.08);
+      box-shadow:0 0 0 4px rgba(156,184,255,0.10);
+    }
+
+    .tiny{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:10px;
+      line-height:1.5;
+    }
+
+    .err{
+      color:#ffb1ab;
+    }
+
+    .strengthWrap{
+      margin-top:18px;
+      padding:15px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
+    }
+
+    .strengthHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:10px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .strengthBar{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.06);
+    }
+
+    .strengthFill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      transition:width 0.25s ease, background 0.25s ease;
+      background:var(--bad2);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:14px;
+      margin-top:14px;
+    }
+
+    @media (max-width:1000px){
+      .grid{grid-template-columns:repeat(2, 1fr);}
+    }
+
+    @media (max-width:560px){
+      .grid{grid-template-columns:1fr;}
+    }
+
+    .model h3{
+      margin:0 0 8px;
+      font-size:14px;
+      letter-spacing:0.2px;
+      font-weight:700;
+    }
+
+    .meta{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.55;
+      margin:0;
+    }
+
+    .big{
+      margin:12px 0 6px;
+      font-size:19px;
+      font-weight:780;
+      letter-spacing:-0.02em;
+    }
+
+    .minirow{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.05);
+      color:var(--muted);
+      font-size:12.5px;
+    }
+
+    .dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.22);
+      border:1px solid rgba(255,255,255,0.10);
+    }
+
+    .risk-low .dot{ background:rgba(120,215,167,0.75); }
+    .risk-med .dot{ background:rgba(240,194,123,0.80); }
+    .risk-high .dot{ background:rgba(239,154,141,0.80); }
+    .risk-vhigh .dot{ background:rgba(215,132,184,0.82); }
+
+    .sectionTitle{
+      margin:24px 0 10px;
+      color:rgba(242,246,252,0.88);
+      font-size:14px;
+      letter-spacing:0.2px;
+      font-weight:650;
+    }
+
+    .bars{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .barRow{
+      display:grid;
+      grid-template-columns:170px 1fr 110px;
+      gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.035);
+    }
+
+    @media (max-width:650px){
+      .barRow{grid-template-columns:1fr; gap:8px;}
+    }
+
+    .barLabel{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .bar{
+      height:12px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.06);
+      overflow:hidden;
+    }
+
+    .fill{
+      height:100%;
+      background:rgba(156,184,255,0.72);
+      width:0%;
+      transition:width 0.25s ease;
+    }
+
+    .barVal{
+      color:var(--muted);
+      font-size:12.5px;
+      text-align:right;
+    }
+
+    @media (max-width:650px){
+      .barVal{text-align:left;}
+    }
+
+    .summary{
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      gap:14px;
+      margin-top:14px;
+    }
+
+    @media (max-width:900px){
+      .summary{grid-template-columns:1fr;}
+    }
+
+    .kv{
+      display:grid;
+      gap:10px;
+    }
+
+    .kvItem{
+      padding:13px;
+      border-radius:15px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
+    }
+
+    .kvItem b{
+      display:block;
+      margin-bottom:6px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .kvItem span{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+    }
+
+    footer{
+      margin-top:15px;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.5;
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>Password Security Simulator</div>
+      </div>
+      <div class="tag">Runs locally • no storage</div>
+    </header>
+
+    <section class="card pad">
+      <h1>Estimate time-to-guess under different attack models</h1>
+      <p class="sub">
+        This demo estimates guessing time for brute force, dictionary, pattern-based, and hybrid attacks.
+        Everything runs locally in your browser using simplified assumptions.
+      </p>
+
+      <div class="inputRow">
+        <div>
+          <label for="pw">Password</label>
+          <input id="pw" type="password" placeholder="Type a password to analyze…" />
+          <div class="tiny" id="msg"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+        <span class="pill" id="overallPill"><span class="dot"></span><span id="overallText">Overall rating: —</span></span>
+        <span class="pill"><span class="dot"></span><span id="entropyText">Entropy estimate: —</span></span>
+        <span class="pill"><span class="dot"></span><span id="assumeText">Assumed guess rate: varies by model</span></span>
+      </div>
+
+      <div class="strengthWrap">
+        <div class="strengthHeader">
+          <span>Password strength</span>
+          <span id="strengthLabel">—</span>
+        </div>
+        <div class="strengthBar">
+          <div class="strengthFill" id="strengthFill"></div>
+        </div>
+        <div class="tiny" id="strengthReason">Enter a password to see its strength.</div>
+      </div>
+    </section>
+
+    <div class="sectionTitle">Recommendations and summary</div>
+    <section class="summary">
+      <div class="card pad kv">
+        <div class="kvItem">
+          <b>Recommendations</b>
+          <span id="recommendations">—</span>
+        </div>
+        <div class="kvItem">
+          <b>Suggested improvement</b>
+          <span id="suggestion">—</span>
+        </div>
+      </div>
+
+      <div class="card pad kv">
+        <div class="kvItem">
+          <b>Biggest weakness detected</b>
+          <span id="weakness">—</span>
+        </div>
+        <div class="kvItem">
+          <b>Worst-case estimate</b>
+          <span id="worstCase">—</span>
+        </div>
+        <div class="kvItem">
+          <b>Privacy note</b>
+          <span>No network calls. Nothing is stored or logged.</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="sectionTitle">Attack model simulations</div>
+    <section class="grid">
+      <div class="card pad model" id="cardBrute">
+        <h3>Brute Force</h3>
+        <p class="meta">Tries all combinations for a given character set.</p>
+        <div class="big" id="tBrute">—</div>
+        <div class="minirow"><span>Guess rate</span><span id="rBrute">—</span></div>
+        <div class="minirow"><span>Assumption</span><span>Random password</span></div>
+        <div style="margin-top:10px" class="pill" id="riskBrute"><span class="dot"></span><span>Risk: —</span></div>
+      </div>
+
+      <div class="card pad model" id="cardDict">
+        <h3>Dictionary</h3>
+        <p class="meta">Common words + basic variations.</p>
+        <div class="big" id="tDict">—</div>
+        <div class="minirow"><span>Guess rate</span><span id="rDict">—</span></div>
+        <div class="minirow"><span>Assumption</span><span>Common word base</span></div>
+        <div style="margin-top:10px" class="pill" id="riskDict"><span class="dot"></span><span>Risk: —</span></div>
+      </div>
+
+      <div class="card pad model" id="cardPattern">
+        <h3>Pattern-Based</h3>
+        <p class="meta">Targets predictable structures like years, sequences, words, and reused formats.</p>
+        <div class="big" id="tPattern">—</div>
+        <div class="minirow"><span>Guess rate</span><span id="rPattern">—</span></div>
+        <div class="minirow"><span>Assumption</span><span>Human-chosen patterns</span></div>
+        <div style="margin-top:10px" class="pill" id="riskPattern"><span class="dot"></span><span>Risk: —</span></div>
+      </div>
+
+      <div class="card pad model" id="cardHybrid">
+        <h3>Hybrid</h3>
+        <p class="meta">Wordlists + substitutions + suffixes + likely user variations.</p>
+        <div class="big" id="tHybrid">—</div>
+        <div class="minirow"><span>Guess rate</span><span id="rHybrid">—</span></div>
+        <div class="minirow"><span>Assumption</span><span>Leetspeak + suffix</span></div>
+        <div style="margin-top:10px" class="pill" id="riskHybrid"><span class="dot"></span><span>Risk: —</span></div>
+      </div>
+    </section>
+
+    <div class="sectionTitle">Comparison (relative time-to-guess)</div>
+    <section class="card pad">
+      <div class="bars">
+        <div class="barRow">
+          <div class="barLabel">Brute force</div>
+          <div class="bar"><div class="fill" id="bBrute"></div></div>
+          <div class="barVal" id="bvBrute">—</div>
+        </div>
+        <div class="barRow">
+          <div class="barLabel">Dictionary</div>
+          <div class="bar"><div class="fill" id="bDict"></div></div>
+          <div class="barVal" id="bvDict">—</div>
+        </div>
+        <div class="barRow">
+          <div class="barLabel">Pattern-based</div>
+          <div class="bar"><div class="fill" id="bPattern"></div></div>
+          <div class="barVal" id="bvPattern">—</div>
+        </div>
+        <div class="barRow">
+          <div class="barLabel">Hybrid</div>
+          <div class="bar"><div class="fill" id="bHybrid"></div></div>
+          <div class="barVal" id="bvHybrid">—</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Educational demo • estimates only • real cracking depends on hashing, rate limits, and attacker resources.
+    </footer>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const COMMON_WORDS = [
+      "password","qwerty","letmein","admin","welcome","iloveyou","dragon",
+      "football","monkey","shadow","sunshine","princess","baseball","master",
+      "hello","login","abc","secret","user","computer"
+    ];
+
+    const MONTHS = [
+      "january","february","march","april","may","june",
+      "july","august","september","october","november","december"
+    ];
+
+    const SEASONS = ["summer","winter","spring","fall","autumn"];
+
+    function charSpace(pw){
+      let space = 0;
+      if (/[a-z]/.test(pw)) space += 26;
+      if (/[A-Z]/.test(pw)) space += 26;
+      if (/[0-9]/.test(pw)) space += 10;
+      if (/[^a-zA-Z0-9]/.test(pw)) space += 33;
+      return Math.max(space, 1);
+    }
+
+    function log2(n){
+      return Math.log(n) / Math.log(2);
+    }
+
+    function formatSeconds(sec){
+      if (!isFinite(sec)) return "—";
+      if (sec < 1) return `${Math.max(sec, 0).toFixed(2)}s`;
+
+      const units = [
+        ["year", 31536000],
+        ["day", 86400],
+        ["hour", 3600],
+        ["minute", 60],
+        ["second", 1]
+      ];
+
+      for (const [name, s] of units){
+        if (sec >= s){
+          const v = sec / s;
+          const rounded = v >= 100 ? Math.round(v) : (v >= 10 ? v.toFixed(1) : v.toFixed(2));
+          return `${rounded} ${name}${v >= 2 ? "s" : ""}`;
+        }
+      }
+
+      return `${sec.toFixed(2)}s`;
+    }
+
+    function riskClassFromSeconds(sec){
+      if (!isFinite(sec)) return "risk-med";
+      if (sec < 3600) return "risk-vhigh";
+      if (sec < 86400) return "risk-high";
+      if (sec < 31536000) return "risk-med";
+      return "risk-low";
+    }
+
+    function setRisk(el, sec){
+      const cls = riskClassFromSeconds(sec);
+      el.classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
+      el.classList.add(cls);
+
+      const label =
+        cls === "risk-low" ? "Low" :
+        cls === "risk-med" ? "Medium" :
+        cls === "risk-high" ? "High" : "Very High";
+
+      el.querySelector("span:last-child").textContent = `Risk: ${label}`;
+    }
+
+    function escapeHtml(str){
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function countCharacterClasses(pw){
+      return [
+        /[a-z]/.test(pw),
+        /[A-Z]/.test(pw),
+        /[0-9]/.test(pw),
+        /[^a-zA-Z0-9]/.test(pw)
+      ].filter(Boolean).length;
+    }
+
+    function analyzePassword(pw){
+      const lower = pw.toLowerCase();
+      const len = pw.length;
+      const space = charSpace(pw);
+      const entropyBits = len * log2(space);
+
+      const hasLower = /[a-z]/.test(pw);
+      const hasUpper = /[A-Z]/.test(pw);
+      const hasDigits = /[0-9]/.test(pw);
+      const hasSymbol = /[^a-zA-Z0-9]/.test(pw);
+      const varietyCount = countCharacterClasses(pw);
+
+      const containsCommonWord =
+        COMMON_WORDS.some(w => lower.includes(w)) ||
+        MONTHS.some(m => lower.includes(m)) ||
+        SEASONS.some(s => lower.includes(s));
+
+      let patternScore = 0;
+
+      if (containsCommonWord) patternScore += 3;
+      if (/(19[7-9][0-9]|20[0-4][0-9])/.test(pw)) patternScore += 2;
+      if (/(.)\1\1/.test(pw)) patternScore += 2;
+      if (/[!?.]$/.test(pw)) patternScore += 1;
+      if (/^[A-Z][a-z]+/.test(pw)) patternScore += 1;
+      if (/(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321)/.test(pw)) patternScore += 3;
+      if (/^[A-Za-z]+[0-9]+$/.test(pw) || /^[A-Za-z]+[^A-Za-z0-9]?[0-9]+$/.test(pw)) patternScore += 2;
+      if (/^[A-Z][a-z]+[0-9!@#$%^&*._-]+$/.test(pw)) patternScore += 2;
+      if (len <= 8) patternScore += 1;
+      if (varietyCount <= 2) patternScore += 1;
+
+      const randomLikeBonus =
+        (!containsCommonWord ? 1 : 0) +
+        (varietyCount >= 3 ? 1 : 0) +
+        (len >= 10 ? 1 : 0) +
+        (!/^[A-Za-z]+[0-9]+$/.test(pw) ? 1 : 0);
+
+      patternScore = Math.max(0, patternScore - Math.min(randomLikeBonus, 3));
+
+      const bruteGuesses = Math.pow(space, len);
+      const bruteRate = 1e10;
+      const bruteSec = (bruteGuesses / bruteRate) / 2;
+
+      const variantMultiplier =
+        (hasDigits ? 500 : 30) *
+        (hasSymbol ? 60 : 8) *
+        (hasUpper ? 12 : 4) *
+        (len >= 12 ? 80 : len >= 9 ? 20 : 5);
+
+      const dictBase = 50_000_000;
+      const dictGuesses = containsCommonWord
+        ? dictBase * variantMultiplier
+        : dictBase * variantMultiplier * 250;
+      const dictRate = 1e9;
+      const dictSec = (dictGuesses / dictRate) / 2;
+
+      let patternGuesses;
+      if (patternScore >= 7) patternGuesses = 5_000_000;
+      else if (patternScore >= 5) patternGuesses = 150_000_000;
+      else if (patternScore >= 3) patternGuesses = 8_000_000_000;
+      else if (patternScore >= 1) patternGuesses = 120_000_000_000;
+      else patternGuesses = 900_000_000_000;
+
+      if (len >= 12) patternGuesses *= 4;
+      if (varietyCount >= 3) patternGuesses *= 4;
+      if (hasSymbol) patternGuesses *= 2;
+      if (!containsCommonWord && varietyCount === 4 && len >= 10) patternGuesses *= 6;
+
+      const patternRate = 2e8;
+      const patternSec = (patternGuesses / patternRate) / 2;
+
+      let hybridGuesses = Math.min(bruteGuesses, dictGuesses * 1200);
+      if (!containsCommonWord && varietyCount >= 3) hybridGuesses *= 3;
+      if (len >= 14) hybridGuesses *= 4;
+      const hybridRate = 1.5e9;
+      const hybridSec = (hybridGuesses / hybridRate) / 2;
+
+      const models = [
+        { name:"Brute force", sec: bruteSec },
+        { name:"Dictionary", sec: dictSec },
+        { name:"Pattern-based", sec: patternSec },
+        { name:"Hybrid", sec: hybridSec }
+      ].sort((a, b) => a.sec - b.sec);
+
+      const weakest = models[0];
+      const worst = models[models.length - 1];
+
+      let suggestion = "Use a longer passphrase with random words or a password manager.";
+      if (containsCommonWord || patternScore >= 5){
+        suggestion = "Avoid common words, years, and predictable structures. Make the password less human-patterned.";
+      }
+      if (len < 12){
+        suggestion = "Increase length to around 12–16+ characters. Length usually helps the most.";
+      }
+      if (len >= 12 && varietyCount >= 3 && !containsCommonWord && patternScore <= 2){
+        suggestion = "This is better than average. Keep it unique and avoid reusing it anywhere else.";
+      }
+
+      return {
+        len,
+        space,
+        entropyBits,
+        bruteSec,
+        dictSec,
+        patternSec,
+        hybridSec,
+        rates: { bruteRate, dictRate, patternRate, hybridRate },
+        weakest,
+        worst,
+        containsCommonWord,
+        patternScore,
+        suggestion
+      };
+    }
+
+    function getStrengthData(pw, analysis){
+      let score = 0;
+      const reasons = [];
+      const recs = [];
+
+      const hasLower = /[a-z]/.test(pw);
+      const hasUpper = /[A-Z]/.test(pw);
+      const hasDigit = /[0-9]/.test(pw);
+      const hasSymbol = /[^a-zA-Z0-9]/.test(pw);
+
+      if (pw.length >= 8) score += 1;
+      if (pw.length >= 10) score += 1;
+      if (pw.length >= 12) score += 2;
+      if (pw.length >= 16) score += 1;
+      if (pw.length < 12) reasons.push("Shorter passwords are easier to guess.");
+
+      const varietyCount = [hasLower, hasUpper, hasDigit, hasSymbol].filter(Boolean).length;
+      score += varietyCount;
+
+      if (!hasUpper) recs.push("Add uppercase letters.");
+      if (!hasLower) recs.push("Add lowercase letters.");
+      if (!hasDigit) recs.push("Add numbers.");
+      if (!hasSymbol) recs.push("Add a symbol.");
+
+      if (analysis.containsCommonWord){
+        score -= 2;
+        reasons.push("Contains a common word or familiar term.");
+        recs.push("Avoid common words, months, seasons, or popular password fragments.");
+      }
+
+      if (analysis.patternScore >= 5){
+        score -= 2;
+        reasons.push("The structure looks predictable.");
+        recs.push("Avoid years, sequences, repeated characters, or word-plus-number patterns.");
+      } else if (analysis.patternScore >= 3){
+        score -= 1;
+        recs.push("Make the structure less predictable.");
+      }
+
+      if (/(.)\1\1/.test(pw)){
+        score -= 1;
+        recs.push("Avoid repeated characters like aaa or 111.");
+      }
+
+      if (/(0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321)/.test(pw)){
+        score -= 2;
+        recs.push("Avoid number sequences.");
+      }
+
+      if (pw.length < 12){
+        recs.push("Increase length to at least 12–16 characters.");
+      }
+
+      if (score < 0) score = 0;
+      if (score > 10) score = 10;
+
+      let label = "Very Weak";
+      let percent = 12;
+      let color = "rgba(215,132,184,0.82)";
+      let reasonText = "Very easy to guess.";
+
+      if (score >= 3){
+        label = "Weak";
+        percent = 30;
+        color = "rgba(239,154,141,0.82)";
+        reasonText = "Still vulnerable to common attacks.";
+      }
+
+      if (score >= 5){
+        label = "Fair";
+        percent = 52;
+        color = "rgba(240,194,123,0.84)";
+        reasonText = "Decent, but still improvable.";
+      }
+
+      if (score >= 7){
+        label = "Strong";
+        percent = 76;
+        color = "rgba(156,184,255,0.84)";
+        reasonText = "Resists simple attack patterns more effectively.";
+      }
+
+      if (score >= 9){
+        label = "Very Strong";
+        percent = 100;
+        color = "rgba(120,215,167,0.85)";
+        reasonText = "Longer and less predictable under this demo model.";
+      }
+
+      if (reasons.length > 0){
+        reasonText = reasons[0];
+      }
+
+      const uniqueRecs = [...new Set(recs)];
+      const recommendationHtml = uniqueRecs.length
+        ? uniqueRecs.map(r => `• ${escapeHtml(r)}`).join("<br>")
+        : "• Good length and character variety.<br>• Keep it unique for every account.<br>• Consider a password manager for storing strong passwords.";
+
+      return {
+        label,
+        percent,
+        color,
+        reasonText,
+        recommendationHtml
+      };
+    }
+
+    function resetUI(){
+      $("overallText").textContent = "Overall rating: —";
+      $("entropyText").textContent = "Entropy estimate: —";
+      $("tBrute").textContent = "—";
+      $("tDict").textContent = "—";
+      $("tPattern").textContent = "—";
+      $("tHybrid").textContent = "—";
+      $("rBrute").textContent = "—";
+      $("rDict").textContent = "—";
+      $("rPattern").textContent = "—";
+      $("rHybrid").textContent = "—";
+      $("bvBrute").textContent = "—";
+      $("bvDict").textContent = "—";
+      $("bvPattern").textContent = "—";
+      $("bvHybrid").textContent = "—";
+      $("bBrute").style.width = "0%";
+      $("bDict").style.width = "0%";
+      $("bPattern").style.width = "0%";
+      $("bHybrid").style.width = "0%";
+      $("worstCase").textContent = "—";
+      $("weakness").textContent = "—";
+      $("suggestion").textContent = "—";
+      $("recommendations").textContent = "—";
+      $("strengthLabel").textContent = "—";
+      $("strengthReason").textContent = "Enter a password to see its strength.";
+      $("strengthFill").style.width = "0%";
+      $("strengthFill").style.background = "rgba(215,132,184,0.82)";
+    }
+
+    function updateUI(pw){
+      const msg = $("msg");
+      msg.classList.remove("err");
+
+      if (!pw || pw.length === 0){
+        msg.textContent = "Type a password above to analyze it.";
+        resetUI();
+        return;
+      }
+
+      if (pw.length < 4){
+        msg.textContent = "Enter at least 4 characters for a more meaningful demo.";
+        msg.classList.add("err");
+      } else {
+        msg.textContent = "Local-only estimate using simplified demo assumptions.";
+      }
+
+      const a = analyzePassword(pw);
+      const strength = getStrengthData(pw, a);
+
+      $("entropyText").textContent = `Entropy estimate: ${Math.round(a.entropyBits)} bits (est.)`;
+
+      const overallSec = a.weakest.sec;
+      const overallCls = riskClassFromSeconds(overallSec);
+      const overallPill = $("overallPill");
+      overallPill.classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
+      overallPill.classList.add(overallCls);
+
+      const overallLabel =
+        overallCls === "risk-low" ? "Strong" :
+        overallCls === "risk-med" ? "Okay" :
+        overallCls === "risk-high" ? "Weak" : "Very Weak";
+
+      $("overallText").textContent = `Overall rating: ${overallLabel} (est.)`;
+
+      $("tBrute").textContent = formatSeconds(a.bruteSec);
+      $("rBrute").textContent = `${(a.rates.bruteRate / 1e9).toFixed(1)}B / sec`;
+      setRisk($("riskBrute"), a.bruteSec);
+      $("cardBrute").classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
+      $("cardBrute").classList.add(riskClassFromSeconds(a.bruteSec));
+
+      $("tDict").textContent = formatSeconds(a.dictSec);
+      $("rDict").textContent = `${(a.rates.dictRate / 1e9).toFixed(1)}B / sec`;
+      setRisk($("riskDict"), a.dictSec);
+      $("cardDict").classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
+      $("cardDict").classList.add(riskClassFromSeconds(a.dictSec));
+
+      $("tPattern").textContent = formatSeconds(a.patternSec);
+      $("rPattern").textContent = `${(a.rates.patternRate / 1e9).toFixed(1)}M / sec`;
+      setRisk($("riskPattern"), a.patternSec);
+      $("cardPattern").classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
+      $("cardPattern").classList.add(riskClassFromSeconds(a.patternSec));
+
+      $("tHybrid").textContent = formatSeconds(a.hybridSec);
+      $("rHybrid").textContent = `${(a.rates.hybridRate / 1e9).toFixed(1)}B / sec`;
+      setRisk($("riskHybrid"), a.hybridSec);
+      $("cardHybrid").classList.remove("risk-low","risk-med","risk-high","risk-vhigh");
+      $("cardHybrid").classList.add(riskClassFromSeconds(a.hybridSec));
+
+      const secs = [a.bruteSec, a.dictSec, a.patternSec, a.hybridSec].map(s => isFinite(s) ? s : 0);
+      const max = Math.max(...secs, 1);
+      const pct = (s) => Math.max(5, Math.min(100, (s / max) * 100));
+
+      $("bBrute").style.width = pct(a.bruteSec) + "%";
+      $("bDict").style.width = pct(a.dictSec) + "%";
+      $("bPattern").style.width = pct(a.patternSec) + "%";
+      $("bHybrid").style.width = pct(a.hybridSec) + "%";
+
+      $("bvBrute").textContent = formatSeconds(a.bruteSec);
+      $("bvDict").textContent = formatSeconds(a.dictSec);
+      $("bvPattern").textContent = formatSeconds(a.patternSec);
+      $("bvHybrid").textContent = formatSeconds(a.hybridSec);
+
+      $("worstCase").textContent = `${a.worst.name}: ${formatSeconds(a.worst.sec)} (under assumptions)`;
+      $("weakness").textContent = `${a.weakest.name} is the fastest successful model in this simulation: ${formatSeconds(a.weakest.sec)}.`;
+      $("suggestion").textContent = a.suggestion;
+
+      $("strengthLabel").textContent = strength.label;
+      $("strengthReason").textContent = strength.reasonText;
+      $("strengthFill").style.width = strength.percent + "%";
+      $("strengthFill").style.background = strength.color;
+      $("recommendations").innerHTML = strength.recommendationHtml;
+    }
+
+    $("pw").addEventListener("input", () => {
+      updateUI($("pw").value);
+    });
+
+    $("msg").textContent = "Type a password above to analyze it.";
+  </script>
+</body>
+</html>
